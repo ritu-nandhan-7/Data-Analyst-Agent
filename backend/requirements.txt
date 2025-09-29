@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pandas
+polars
+duckdb
+numpy
+matplotlib
+seaborn
+plotly
+python-dotenv
+python-multipart
+requests
+google-generativeai
+beautifulsoup4
+lxml
