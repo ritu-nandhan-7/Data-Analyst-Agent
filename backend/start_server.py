@@ -1,6 +1,6 @@
 """
-Data Analyst Agent Backend - Simple Launcher
-Launches the FastAPI server using uvicorn
+InsightEngine Backend - Render.com Launcher
+Launches the FastAPI server using uvicorn for Render deployment
 """
 import sys
 import os

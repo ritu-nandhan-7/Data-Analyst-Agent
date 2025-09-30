@@ -1,0 +1,27 @@
+services:
+  # Backend API Service
+  - type: web
+    name: insightengine-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually in dashboard
+    
+  # Frontend Static Site
+  - type: web
+    name: insightengine-frontend
+    env: static
+    rootDir: front-end
+    buildCommand: npm run build
+    staticPublishPath: dist
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: insightengine-backend
+          property: url
