@@ -51,11 +51,11 @@ function App() {
     const wakeBackend = async () => {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       
+      // First quick check to see if server is already running
       try {
-        // Quick health check first
         const response = await fetch(`${apiUrl}/api/health`, { 
           method: 'GET',
-          signal: AbortSignal.timeout(3000) 
+          signal: AbortSignal.timeout(2000) 
         });
         
         if (response.ok) {
@@ -64,25 +64,37 @@ function App() {
           return;
         }
       } catch (error) {
-        // Server is sleeping, wake it up
+        // Server needs to wake up
       }
       
-      // Start wake-up process
+      // Start wake-up process with continuous progress
       setBackendStatus('waking');
-      setBackendMessage('Server is sleeping, waking it up...');
+      setBackendMessage('Starting up server...');
       setIsWakingUp(true);
       
-      // Try to wake up with multiple attempts
-      for (let attempt = 1; attempt <= 8; attempt++) {
-        setBackendMessage(`🔄 Waking up server... (${attempt}/8) - Please wait`);
-        
+      // Keep trying until server responds (no time limit)
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 1;
+        if (progress <= 100) {
+          setBackendMessage(`🔄 Starting up server... ${progress}%`);
+        } else {
+          // Reset progress and continue
+          progress = 10;
+          setBackendMessage(`🔄 Server is starting up... ${progress}%`);
+        }
+      }, 800); // Update every 800ms
+      
+      // Continuous health check until server responds
+      const checkHealth = async () => {
         try {
           const response = await fetch(`${apiUrl}/api/health`, { 
             method: 'GET',
-            signal: AbortSignal.timeout(8000)
+            signal: AbortSignal.timeout(10000) // 10 second timeout per attempt
           });
           
           if (response.ok) {
+            clearInterval(progressInterval);
             setBackendStatus('healthy');
             setBackendMessage('✅ Server is ready! You can now upload data.');
             setIsWakingUp(false);
@@ -92,16 +104,12 @@ function App() {
           // Continue trying
         }
         
-        // Wait before next attempt
-        if (attempt < 8) {
-          await new Promise(resolve => setTimeout(resolve, 4000));
-        }
-      }
+        // Wait 5 seconds before next health check
+        setTimeout(checkHealth, 5000);
+      };
       
-      // Failed to wake up
-      setBackendStatus('error');
-      setBackendMessage('❌ Server failed to respond. Please refresh and try again.');
-      setIsWakingUp(false);
+      // Start health checking
+      setTimeout(checkHealth, 3000); // First check after 3 seconds
     };
     
     // Start wake process after UI loads
@@ -273,14 +281,32 @@ function App() {
           <h1>🔧 <span>InsightEngine</span></h1>
           <p>Upload your data, ask questions, and get intelligent insights with visualizations</p>
           <div className="header-actions">
+            {backendStatus !== 'healthy' && (
+              <div className={`server-status-indicator ${backendStatus}`}>
+                <span className="status-icon">
+                  {backendStatus === 'checking' && '🔍'}
+                  {backendStatus === 'waking' && '⚡'}
+                </span>
+                <span className="status-text">
+                  {backendStatus === 'checking' && 'Checking Server...'}
+                  {backendStatus === 'waking' && 'Starting Server...'}
+                </span>
+              </div>
+            )}
+            {backendStatus === 'healthy' && (
+              <div className="server-status-indicator healthy">
+                <span className="status-dot"></span>
+                <span className="status-text">Server Online</span>
+              </div>
+            )}
             <button onClick={() => setShowHelp(true)} className="help-button">
-              ❓ Help
+              <span className="button-emoji">❓</span> Help
             </button>
             <button onClick={() => setShowFeatures(true)} className="features-button">
-              ⭐ Features
+              <span className="button-emoji">⭐</span> Features
             </button>
             <button onClick={() => setShowExamples(true)} className="examples-button">
-              📚 Examples
+              <span className="button-emoji">📚</span> Examples
             </button>
           </div>
         </div>
@@ -289,19 +315,20 @@ function App() {
       <main>
         {/* Backend Status Indicator */}
         {backendStatus !== 'healthy' && (
-          <section className="backend-status">
+          <section className={`backend-status ${backendStatus}`}>
             <div className="status-content">
               <div className="status-icon">
                 {backendStatus === 'checking' && '🔍'}
                 {backendStatus === 'waking' && '🔄'}
-                {backendStatus === 'error' && '❌'}
               </div>
               <div className="status-message">
-                <strong>Server Status:</strong> {backendMessage}
+                <strong>Server Status :</strong> {backendMessage}
               </div>
               {isWakingUp && (
-                <div className="status-note">
-                  <small>⏱️ Free hosting servers sleep after 15 minutes of inactivity. This usually takes 30-45 seconds.</small>
+                <div className="progress-bar-container">
+                  <div className="progress-bar">
+                    <div className="progress-fill"></div>
+                  </div>
                 </div>
               )}
             </div>

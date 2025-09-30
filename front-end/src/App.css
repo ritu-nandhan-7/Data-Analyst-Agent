@@ -690,6 +690,22 @@ button:disabled {
     min-width: unset;
   }
   
+  .server-status-indicator {
+    font-size: 0.9rem;
+    padding: 0.8rem 1.5rem;
+    gap: 0.5rem;
+    min-width: 120px;
+  }
+  
+  .status-dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .status-icon {
+    font-size: 0.9rem;
+  }
+  
   .questions-grid { 
     grid-template-columns: 1fr; 
   }
@@ -768,6 +784,79 @@ button:disabled {
   justify-content: center;
 }
 
+/* Server Status Indicator */
+.server-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.77rem;
+  border-radius: 12px;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Healthy state (green) */
+.server-status-indicator.healthy {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+/* Checking state (blue) */
+.server-status-indicator.checking {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+/* Waking state (orange) */
+.server-status-indicator.waking {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+}
+
+/* Status icons */
+.status-icon {
+  font-size: 1rem;
+  animation: spin 1.5s linear infinite;
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .help-button, .features-button, .examples-button {
   background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
   border: none;
@@ -782,6 +871,20 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* Emoji styling with black border */
+.button-emoji {
+  text-shadow: 
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    -1px 0 0 #000,
+    1px 0 0 #000,
+    0 -1px 0 #000,
+    0 1px 0 #000;
+  filter: contrast(1.2) brightness(1.1);
 }
 
 .help-button:hover, .features-button:hover, .examples-button:hover {
@@ -1064,11 +1167,27 @@ button:disabled {
 
 .status-icon {
   font-size: 2rem;
-  animation: spin 2s linear infinite;
 }
 
-.status-icon:not(:has(🔄)) {
-  animation: none;
+.backend-status.waking .status-icon,
+.backend-status.checking .status-icon {
+  animation: spin 1.5s linear infinite;
+}
+
+.backend-status.checking {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.backend-status.checking .status-message {
+  color: #3b82f6;
+}
+
+.backend-status.waking {
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+.backend-status.waking .status-message {
+  color: #f97316;
 }
 
 @keyframes spin {
@@ -1078,12 +1197,36 @@ button:disabled {
 
 @keyframes pulse {
   0%, 100% { 
-    border-color: rgba(255, 193, 7, 0.5);
     box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.3);
   }
   50% { 
-    border-color: rgba(255, 193, 7, 0.8);
     box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+}
+
+.backend-status.checking {
+  animation: pulseBlue 2s infinite;
+}
+
+.backend-status.waking {
+  animation: pulseOrange 2s infinite;
+}
+
+@keyframes pulseBlue {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes pulseOrange {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
   }
 }
 
@@ -1097,16 +1240,41 @@ button:disabled {
   color: #fff;
 }
 
-.status-note {
+.progress-bar-container {
   width: 100%;
-  margin-top: 0.5rem;
-  color: #ccc;
-  font-style: italic;
+  margin-top: 1rem;
 }
 
-.status-note small {
-  font-size: 0.85rem;
-  opacity: 0.8;
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #0099cc, #00d4ff);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: progressPulse 2s ease-in-out infinite;
+  width: 70%;
+}
+
+@keyframes progressPulse {
+  0% {
+    width: 30%;
+    background-position: 0% 50%;
+  }
+  50% {
+    width: 70%;
+    background-position: 100% 50%;
+  }
+  100% {
+    width: 30%;
+    background-position: 0% 50%;
+  }
 }
 
 /* Hide status when healthy */
