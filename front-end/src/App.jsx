@@ -74,7 +74,8 @@ function App() {
       setProcessingStep('Uploading to server...');
       setProgressPercent(50);
       
-      const response = await fetch('http://localhost:8000/api/upload', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -153,7 +154,8 @@ function App() {
     setProcessingStep('Sending query to AI...');
     
     try {
-      const response = await fetch('http://localhost:8000/api/query', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,8 +186,9 @@ function App() {
         });
       }
     } catch (error) {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       setResults({ 
-        error: `Connection error: ${error.message}. Make sure the backend server is running on http://localhost:8000` 
+        error: `Connection error: ${error.message}. Make sure the backend server is running on ${apiUrl}` 
       });
       console.error('Query error:', error);
     } finally {

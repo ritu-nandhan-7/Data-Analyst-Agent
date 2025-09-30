@@ -13,6 +13,9 @@ app = FastAPI(
     version="2.0.0"
 )
 
+# Vercel handler
+handler = app
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
