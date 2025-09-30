@@ -13,7 +13,7 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Vercel handler
+# Railway/Production handler
 handler = app
 
 # Add CORS middleware
