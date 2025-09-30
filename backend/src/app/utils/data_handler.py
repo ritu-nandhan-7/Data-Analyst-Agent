@@ -11,6 +11,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import re
 from urllib.parse import urlparse
+import numpy as np
 
 from app.memory import memory_store
 
@@ -20,6 +21,77 @@ MAX_PANDAS_MB = 100
 # Configure Gemini for web scraping
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel('gemini-1.5-flash')  # Updated model name
+
+def make_json_serializable(obj):
+    """Convert pandas/numpy objects to JSON serializable format"""
+    if isinstance(obj, dict):
+        return {k: make_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [make_json_serializable(item) for item in obj]
+    elif hasattr(obj, 'dtype'):  # pandas/numpy objects with dtype
+        if pd.isna(obj):
+            return None
+        elif hasattr(obj, 'item'):  # numpy scalars
+            return obj.item()
+        else:
+            return str(obj)
+    elif isinstance(obj, (np.integer, np.floating)):
+        return obj.item()
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif pd.isna(obj):
+        return None
+    elif hasattr(obj, 'name'):  # pandas dtype objects
+        return str(obj)
+    else:
+        return obj
+
+def create_safe_preview_data(df):
+    """Create JSON-safe preview data from DataFrame"""
+    try:
+        # Convert data types to string representation
+        dtypes_dict = {}
+        for col, dtype in df.dtypes.items():
+            dtypes_dict[col] = str(dtype)
+        
+        # Convert null counts safely
+        null_counts = {}
+        for col, count in df.isnull().sum().items():
+            null_counts[col] = int(count) if pd.notna(count) else 0
+        
+        # Convert sample data safely
+        sample_data = []
+        for _, row in df.head(5).iterrows():
+            row_dict = {}
+            for col, val in row.items():
+                if pd.isna(val):
+                    row_dict[col] = None
+                elif hasattr(val, 'item'):  # numpy scalars
+                    row_dict[col] = val.item()
+                elif isinstance(val, (np.integer, np.floating)):
+                    row_dict[col] = val.item()
+                else:
+                    row_dict[col] = str(val) if not isinstance(val, (int, float, str, bool, type(None))) else val
+            sample_data.append(row_dict)
+        
+        return {
+            "sample_data": sample_data,
+            "columns": list(df.columns),
+            "data_types": dtypes_dict,
+            "shape": list(df.shape),
+            "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
+            "null_counts": null_counts
+        }
+    except Exception as e:
+        # Fallback to basic info if detailed preview fails
+        return {
+            "sample_data": [],
+            "columns": list(df.columns),
+            "data_types": {},
+            "shape": list(df.shape),
+            "size_mb": 0,
+            "null_counts": {}
+        }
 
 async def handle_upload(file: UploadFile):
     content = await file.read()
@@ -59,7 +131,7 @@ async def handle_upload(file: UploadFile):
     preview_data = None
     try:
         if hasattr(df, 'head'):  # pandas
-            preview_data = df.head(3).to_dict('records')
+            preview_data = make_json_serializable(df.head(3).to_dict('records'))
         else:  # polars
             preview_data = df.head(3).to_dicts()
     except:
@@ -138,14 +210,7 @@ async def handle_wikipedia_url(url: str):
                             memory_store['url_source'] = url
                             
                             # Generate preview data
-                            preview_data = {
-                                "sample_data": df.head(5).to_dict('records'),
-                                "columns": list(df.columns),
-                                "data_types": df.dtypes.to_dict(),
-                                "shape": df.shape,
-                                "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-                                "null_counts": df.isnull().sum().to_dict()
-                            }
+                            preview_data = create_safe_preview_data(df)
                             
                             return {
                                 "status": "success", 
@@ -296,14 +361,7 @@ async def handle_generic_url(url: str):
             memory_store['filename'] = url.split('/')[-1] or 'scraped_data.csv'
             
             # Generate preview data
-            preview_data = {
-                "sample_data": df.head(5).to_dict('records'),
-                "columns": list(df.columns),
-                "data_types": df.dtypes.to_dict(),
-                "shape": df.shape,
-                "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-                "null_counts": df.isnull().sum().to_dict()
-            }
+            preview_data = create_safe_preview_data(df)
             
             return {"status": "success", "rows": len(df), "type": "direct_csv", "preview": preview_data}
         
@@ -314,14 +372,7 @@ async def handle_generic_url(url: str):
             memory_store['filename'] = url.split('/')[-1] or 'scraped_data.json'
             
             # Generate preview data
-            preview_data = {
-                "sample_data": df.head(5).to_dict('records'),
-                "columns": list(df.columns),
-                "data_types": df.dtypes.to_dict(),
-                "shape": df.shape,
-                "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-                "null_counts": df.isnull().sum().to_dict()
-            }
+            preview_data = create_safe_preview_data(df)
             
             return {"status": "success", "rows": len(df), "type": "direct_json", "preview": preview_data}
         
@@ -339,14 +390,7 @@ async def handle_generic_url(url: str):
                         memory_store['filename'] = f"scraped_table_{url.split('/')[-1] or 'data'}.csv"
                         
                         # Generate preview data
-                        preview_data = {
-                            "sample_data": df.head(5).to_dict('records'),
-                            "columns": list(df.columns),
-                            "data_types": df.dtypes.to_dict(),
-                            "shape": df.shape,
-                            "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-                            "null_counts": df.isnull().sum().to_dict()
-                        }
+                        preview_data = create_safe_preview_data(df)
                         
                         return {"status": "success", "rows": len(df), "type": "html_table", "preview": preview_data}
                 except Exception as e:
@@ -391,14 +435,7 @@ async def handle_generic_url(url: str):
                 memory_store['filename'] = f"ai_extracted_{url.split('/')[-1] or 'data'}.csv"
                 
                 # Generate preview data
-                preview_data = {
-                    "sample_data": df.head(5).to_dict('records'),
-                    "columns": list(df.columns),
-                    "data_types": df.dtypes.to_dict(),
-                    "shape": df.shape,
-                    "size_mb": round(df.memory_usage(deep=True).sum() / 1024 / 1024, 2),
-                    "null_counts": df.isnull().sum().to_dict()
-                }
+                preview_data = create_safe_preview_data(df)
                 
                 return {"status": "success", "rows": len(df), "type": "ai_extracted", "preview": preview_data}
             else:

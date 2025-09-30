@@ -25,6 +25,9 @@ function App() {
   const [progressPercent, setProgressPercent] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
   
   // Suggested questions
   const suggestedQuestions = [
@@ -196,8 +199,21 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>🤖 <span>AI Data Analyst Agent</span></h1>
-        <p>Upload your data, ask questions, and get intelligent insights with visualizations</p>
+        <div className="header-content">
+          <h1>🤖 <span>AI Data Analyst Agent</span></h1>
+          <p>Upload your data, ask questions, and get intelligent insights with visualizations</p>
+          <div className="header-actions">
+            <button onClick={() => setShowHelp(true)} className="help-button">
+              ❓ Help
+            </button>
+            <button onClick={() => setShowFeatures(true)} className="features-button">
+              ⭐ Features
+            </button>
+            <button onClick={() => setShowExamples(true)} className="examples-button">
+              📚 Examples
+            </button>
+          </div>
+        </div>
       </header>
       
       <main>
@@ -575,6 +591,229 @@ function App() {
           </section>
         )}
       </main>
+
+      {/* Help Modal */}
+      {showHelp && (
+        <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>❓ How to Use AI Data Analyst Agent</h2>
+              <button onClick={() => setShowHelp(false)} className="close-button">✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="help-section">
+                <h3>🚀 Quick Start Guide</h3>
+                <ol>
+                  <li><strong>Upload Your Data:</strong> Choose from file upload, raw text, or website URL</li>
+                  <li><strong>Ask Questions:</strong> Type questions, upload question files, or use suggestions</li>
+                  <li><strong>Get Insights:</strong> Receive AI-powered analysis with visualizations</li>
+                </ol>
+              </div>
+
+              <div className="help-section">
+                <h3>📁 Data Input Methods</h3>
+                <div className="help-grid">
+                  <div className="help-item">
+                    <strong>📄 File Upload</strong>
+                    <p>Supports: CSV, JSON, Excel (.xlsx, .xls), TXT files</p>
+                    <p>Max size: 100MB (uses smart processing for large files)</p>
+                  </div>
+                  <div className="help-item">
+                    <strong>📝 Raw Data</strong>
+                    <p>Paste CSV data, JSON, or any structured text directly</p>
+                    <p>Perfect for quick analysis of small datasets</p>
+                  </div>
+                  <div className="help-item">
+                    <strong>🌐 Website URL</strong>
+                    <p>Extract data from websites, Wikipedia tables, or direct data files</p>
+                    <p>AI automatically detects and extracts structured data</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="help-section">
+                <h3>❓ Question Types</h3>
+                <div className="help-grid">
+                  <div className="help-item">
+                    <strong>📊 Statistical Analysis</strong>
+                    <p>"Show summary statistics", "Find correlations", "Identify outliers"</p>
+                  </div>
+                  <div className="help-item">
+                    <strong>📈 Visualizations</strong>
+                    <p>"Create charts", "Show distributions", "Plot relationships"</p>
+                  </div>
+                  <div className="help-item">
+                    <strong>🔍 Data Exploration</strong>
+                    <p>"What patterns exist?", "Find trends", "Analyze segments"</p>
+                  </div>
+                  <div className="help-item">
+                    <strong>🤖 AI Insights</strong>
+                    <p>"Generate report", "Predict outcomes", "Recommend actions"</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="help-section">
+                <h3>💡 Pro Tips</h3>
+                <ul>
+                  <li>Be specific in your questions for better insights</li>
+                  <li>Use the suggested questions as starting points</li>
+                  <li>Check data preview before analysis</li>
+                  <li>Export results for further use</li>
+                  <li>Review analysis history for patterns</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Features Modal */}
+      {showFeatures && (
+        <div className="modal-overlay" onClick={() => setShowFeatures(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>⭐ Powerful Features</h2>
+              <button onClick={() => setShowFeatures(false)} className="close-button">✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="features-grid">
+                <div className="feature-card">
+                  <div className="feature-icon">🤖</div>
+                  <h3>AI-Powered Analysis</h3>
+                  <p>Advanced AI understands your data and provides intelligent insights automatically</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">📊</div>
+                  <h3>Smart Visualizations</h3>
+                  <p>Automatically generates relevant charts, graphs, and plots based on your data</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">🌐</div>
+                  <h3>Web Data Extraction</h3>
+                  <p>Extract data from websites, especially Wikipedia tables and structured content</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">⚡</div>
+                  <h3>Large File Support</h3>
+                  <p>Handles large datasets efficiently using optimized processing engines</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">🔍</div>
+                  <h3>Natural Language Queries</h3>
+                  <p>Ask questions in plain English - no SQL or programming knowledge needed</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">📈</div>
+                  <h3>Analysis History</h3>
+                  <p>Keep track of your previous analyses and easily reload past insights</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">📥</div>
+                  <h3>Export Results</h3>
+                  <p>Download charts, export analysis results, and save your insights</p>
+                </div>
+                <div className="feature-card">
+                  <div className="feature-icon">🛠️</div>
+                  <h3>Self-Healing System</h3>
+                  <p>Automatically fixes common data issues and optimizes performance</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Examples Modal */}
+      {showExamples && (
+        <div className="modal-overlay" onClick={() => setShowExamples(false)}>
+          <div className="modal-content large-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📚 Usage Examples</h2>
+              <button onClick={() => setShowExamples(false)} className="close-button">✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="examples-section">
+                <h3>🌐 Website Data Examples</h3>
+                <div className="example-item">
+                  <strong>Wikipedia Tables:</strong>
+                  <code>https://en.wikipedia.org/wiki/List_of_countries_by_GDP</code>
+                  <p>Extract economic data tables automatically</p>
+                </div>
+                <div className="example-item">
+                  <strong>Direct CSV Files:</strong>
+                  <code>https://example.com/data.csv</code>
+                  <p>Process CSV files directly from URLs</p>
+                </div>
+              </div>
+
+              <div className="examples-section">
+                <h3>❓ Sample Questions</h3>
+                <div className="example-categories">
+                  <div className="example-category">
+                    <h4>📊 Statistical Analysis</h4>
+                    <ul>
+                      <li>"What are the key statistics for numerical columns?"</li>
+                      <li>"Show me the correlation matrix"</li>
+                      <li>"Find outliers in the dataset"</li>
+                      <li>"What's the distribution of [column name]?"</li>
+                    </ul>
+                  </div>
+                  <div className="example-category">
+                    <h4>📈 Business Intelligence</h4>
+                    <ul>
+                      <li>"Which product category has the highest sales?"</li>
+                      <li>"Show monthly revenue trends"</li>
+                      <li>"Compare performance across regions"</li>
+                      <li>"Identify top performing segments"</li>
+                    </ul>
+                  </div>
+                  <div className="example-category">
+                    <h4>🔍 Data Quality</h4>
+                    <ul>
+                      <li>"Are there any missing values?"</li>
+                      <li>"Check for duplicate records"</li>
+                      <li>"Validate data consistency"</li>
+                      <li>"Show data quality issues"</li>
+                    </ul>
+                  </div>
+                  <div className="example-category">
+                    <h4>🎯 Predictive Analysis</h4>
+                    <ul>
+                      <li>"Predict future sales based on trends"</li>
+                      <li>"What factors influence customer churn?"</li>
+                      <li>"Forecast next quarter's performance"</li>
+                      <li>"Identify patterns for recommendations"</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="examples-section">
+                <h3>💼 Use Cases</h3>
+                <div className="use-cases-grid">
+                  <div className="use-case">
+                    <strong>📈 Business Analytics</strong>
+                    <p>Sales analysis, customer segmentation, performance metrics</p>
+                  </div>
+                  <div className="use-case">
+                    <strong>🎓 Academic Research</strong>
+                    <p>Data exploration, statistical analysis, research insights</p>
+                  </div>
+                  <div className="use-case">
+                    <strong>💰 Financial Analysis</strong>
+                    <p>Market trends, investment analysis, risk assessment</p>
+                  </div>
+                  <div className="use-case">
+                    <strong>🏥 Healthcare Data</strong>
+                    <p>Patient analytics, treatment outcomes, health trends</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
