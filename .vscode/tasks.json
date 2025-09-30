@@ -2,20 +2,26 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Run FastAPI app",
+			"label": "Run Backend Server",
 			"type": "shell",
-			"command": "uvicorn app.main:app --reload",
+			"command": "uvicorn main:app --reload --host 127.0.0.1 --port 8000",
 			"args": [],
-			"isBackground": false,
+			"options": {
+				"cwd": "${workspaceFolder}/backend"
+			},
+			"isBackground": true,
 			"problemMatcher": [],
 			"group": "build"
 		},
 		{
-			"label": "Run FastAPI app",
+			"label": "Run Frontend Dev Server",
 			"type": "shell",
-			"command": "uvicorn app.main:app --reload",
+			"command": "npm run dev",
 			"args": [],
-			"isBackground": false,
+			"options": {
+				"cwd": "${workspaceFolder}/front-end"
+			},
+			"isBackground": true,
 			"problemMatcher": [],
 			"group": "build"
 		}
