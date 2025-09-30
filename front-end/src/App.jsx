@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -29,6 +29,11 @@ function App() {
   const [showFeatures, setShowFeatures] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
   
+  // Backend status states
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [backendMessage, setBackendMessage] = useState('Checking server status...');
+  const [isWakingUp, setIsWakingUp] = useState(false);
+  
   // Suggested questions
   const suggestedQuestions = [
     "What are the key statistics and summary of this dataset?",
@@ -40,6 +45,68 @@ function App() {
     "Generate a comprehensive data analysis report",
     "Create visualizations for the most important insights"
   ];
+
+  // Auto-wake backend on app load
+  useEffect(() => {
+    const wakeBackend = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      
+      try {
+        // Quick health check first
+        const response = await fetch(`${apiUrl}/api/health`, { 
+          method: 'GET',
+          signal: AbortSignal.timeout(3000) 
+        });
+        
+        if (response.ok) {
+          setBackendStatus('healthy');
+          setBackendMessage('Server is ready! 🚀');
+          return;
+        }
+      } catch (error) {
+        // Server is sleeping, wake it up
+      }
+      
+      // Start wake-up process
+      setBackendStatus('waking');
+      setBackendMessage('Server is sleeping, waking it up...');
+      setIsWakingUp(true);
+      
+      // Try to wake up with multiple attempts
+      for (let attempt = 1; attempt <= 8; attempt++) {
+        setBackendMessage(`🔄 Waking up server... (${attempt}/8) - Please wait`);
+        
+        try {
+          const response = await fetch(`${apiUrl}/api/health`, { 
+            method: 'GET',
+            signal: AbortSignal.timeout(8000)
+          });
+          
+          if (response.ok) {
+            setBackendStatus('healthy');
+            setBackendMessage('✅ Server is ready! You can now upload data.');
+            setIsWakingUp(false);
+            return;
+          }
+        } catch (error) {
+          // Continue trying
+        }
+        
+        // Wait before next attempt
+        if (attempt < 8) {
+          await new Promise(resolve => setTimeout(resolve, 4000));
+        }
+      }
+      
+      // Failed to wake up
+      setBackendStatus('error');
+      setBackendMessage('❌ Server failed to respond. Please refresh and try again.');
+      setIsWakingUp(false);
+    };
+    
+    // Start wake process after UI loads
+    setTimeout(wakeBackend, 1000);
+  }, []);
 
   const handleDataUpload = async () => {
     setIsLoading(true);
@@ -220,6 +287,27 @@ function App() {
       </header>
       
       <main>
+        {/* Backend Status Indicator */}
+        {backendStatus !== 'healthy' && (
+          <section className="backend-status">
+            <div className="status-content">
+              <div className="status-icon">
+                {backendStatus === 'checking' && '🔍'}
+                {backendStatus === 'waking' && '🔄'}
+                {backendStatus === 'error' && '❌'}
+              </div>
+              <div className="status-message">
+                <strong>Server Status:</strong> {backendMessage}
+              </div>
+              {isWakingUp && (
+                <div className="status-note">
+                  <small>⏱️ Free hosting servers sleep after 15 minutes of inactivity. This usually takes 30-45 seconds.</small>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Data Upload Section */}
         <section className="upload-section">
           <h2>📁 Data Input</h2>
