@@ -74,11 +74,23 @@ function App() {
       
       // Keep trying until server responds (no time limit)
       let progress = 0;
+      let showingAlmostReady = false;
       const progressInterval = setInterval(() => {
         progress += 1;
         if (progress <= 100) {
           setBackendMessage(`🔄 Starting up server... ${progress}%`);
-        } else {
+        } else if (!showingAlmostReady) {
+          // Show "almost ready" state
+          showingAlmostReady = true;
+          setBackendStatus('almost-ready');
+          setBackendMessage(`⏳ Server almost ready...`);
+          setTimeout(() => {
+            // Reset progress and continue if server still not ready
+            setBackendStatus('waking');
+            progress = 10;
+            showingAlmostReady = false;
+          }, 3000); // Show "almost ready" for 3 seconds
+        } else if (progress > 110) {
           // Reset progress and continue
           progress = 10;
           setBackendMessage(`🔄 Server is starting up... ${progress}%`);
@@ -286,10 +298,12 @@ function App() {
                 <span className="status-icon">
                   {backendStatus === 'checking' && '🔍'}
                   {backendStatus === 'waking' && '⚡'}
+                  {backendStatus === 'almost-ready' && '⏳'}
                 </span>
                 <span className="status-text">
                   {backendStatus === 'checking' && 'Checking Server...'}
                   {backendStatus === 'waking' && 'Starting Server...'}
+                  {backendStatus === 'almost-ready' && 'Server Almost Ready...'}
                 </span>
               </div>
             )}
