@@ -203,7 +203,7 @@ function App() {
     <div className="app">
       <header>
         <div className="header-content">
-          <h1>🤖 <span>AI Data Analyst Agent</span></h1>
+          <h1>🔧 <span>InsightEngine</span></h1>
           <p>Upload your data, ask questions, and get intelligent insights with visualizations</p>
           <div className="header-actions">
             <button onClick={() => setShowHelp(true)} className="help-button">
@@ -600,7 +600,7 @@ function App() {
         <div className="modal-overlay" onClick={() => setShowHelp(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>❓ How to Use AI Data Analyst Agent</h2>
+              <h2>❓ How to Use InsightEngine</h2>
               <button onClick={() => setShowHelp(false)} className="close-button">✕</button>
             </div>
             <div className="modal-body">

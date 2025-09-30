@@ -8,8 +8,8 @@ from app.routers import upload, query, self_healing
 from app.memory import memory_store
 
 app = FastAPI(
-    title="Data Analyst Agent",
-    description="AI-powered data analysis API with natural language queries and self-healing capabilities",
+    title="InsightEngine API",
+    description="AI-powered data analysis engine with natural language queries and self-healing capabilities",
     version="2.0.0"
 )
 
@@ -61,7 +61,7 @@ async def root():
     healing_stats = auto_healer.get_healing_stats()
     
     return {
-        "message": "Data Analyst Agent API is running",
+        "message": "InsightEngine API is running",
         "status": "healthy",
         "version": "2.0.0",
         "features": {

@@ -1,6 +1,6 @@
-# Data Analyst Agent 🤖📊
+# InsightEngine 🔧📊
 
-An AI-powered data analysis API that allows you to upload datasets and ask natural language questions to get insights, visualizations, and analysis results.
+An AI-powered data analysis engine that allows you to upload datasets and ask natural language questions to get insights, visualizations, and analysis results.
 
 ## 🚀 Features
 

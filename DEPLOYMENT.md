@@ -10,7 +10,7 @@
 
 1. **Go to [Vercel.com](https://vercel.com)**
 2. **Connect GitHub** - Sign in with your GitHub account
-3. **Import Repository** - Select `Data-Analyst-Agent`
+3. **Import Repository** - Select `Data-Analyst-Agent` (InsightEngine)
 4. **Configure Project:**
    - **Framework Preset**: Detect automatically (Vite)
    - **Root Directory**: `front-end` (for frontend)
